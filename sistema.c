@@ -45,11 +45,38 @@ static int do_readdir( const char *path, void *buffer, fuse_fill_dir_t filler, o
 	return 0;
 }
 
+/**
+ * Funcion que lee un archivo abierto y regresa el numero de bytes
+ * del archivo solicitados.
+ * Lo leido se copia en el buffer.
+ */
+static int read_file(const char *path, char *buf, size_t size, off_t offset,
+    struct fuse_file_info *fi) {
+
+  if (strcmp(path, filepath) == 0) {
+    size_t len = strlen(filecontent);
+    if (offset >= len) {
+      return 0;
+    }
+
+    if (offset + size > len) {
+      memcpy(buf, filecontent + offset, len - offset);
+      return len - offset;
+    }
+
+    memcpy(buf, filecontent + offset, size);
+    return size;
+  }
+
+  return -ENOENT;
+}
+
 //Agregar aqui correspondencias entre las funciones de FUSE
 // y las implementadas
 static struct fuse_operations operations = {
     .getattr	= do_getattr,
     .readdir	= do_readdir,
+    .read = read_file,
 };
 
 int main( int argc, char *argv[] )
