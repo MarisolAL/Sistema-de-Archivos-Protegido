@@ -32,3 +32,27 @@ static int do_getattr( const char *path, struct stat *st )
 	return 0;
 }
 
+/**
+ * Funcion que lee los archivos contenidos en el directorio en cuestion
+ */
+static int do_readdir( const char *path, void *buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi )
+{
+	printf( "Obteniendo lista del directorio: %s\n", path );
+
+	filler( buffer, ".", NULL, 0 ); // Llena el buffer a llenar con los nombres de los archivos del directorio actual
+	filler( buffer, "..", NULL, 0 ); // Llena el buffer a llenar con los nombres de los archivos del directorio padre
+
+	return 0;
+}
+
+//Agregar aqui correspondencias entre las funciones de FUSE
+// y las implementadas
+static struct fuse_operations operations = {
+    .getattr	= do_getattr,
+    .readdir	= do_readdir,
+};
+
+int main( int argc, char *argv[] )
+{
+	return fuse_main( argc, argv, &operations, NULL );
+}
